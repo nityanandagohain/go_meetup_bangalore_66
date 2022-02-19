@@ -1,0 +1,15 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+build:
+  artifacts:
+  - image: jobsync
+    context: .
+deploy:
+  kubectl:
+    manifests:
+    - manifests/deployment.yaml
+    # - manifests/rbac.yaml
+    - manifests/secret.yaml
+    - manifests/validatingwebhook.yaml
+    - manifests/mutatingwebhook.yaml
+    

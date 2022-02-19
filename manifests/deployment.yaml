@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobsync
+  namespace: default
+spec:
+  selector:
+    app: jobsync
+  ports:
+    - port: 443
+      targetPort: tls
+      name: application
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobsync
+  namespace: default
+  labels:
+    app: jobsync
+spec:
+  replicas: 1
+  selector: # pod label selector
+    matchLabels:
+      app: jobsync
+  template:
+    metadata: # label for the pod
+      labels:
+        app: jobsync
+    spec:
+      containers:
+      - name: server
+        image: jobsync
+        ports:
+        - containerPort: 8443
+          name: tls
+        volumeMounts:
+        - name: webhook-tls-certs
+          mountPath: /etc/webhook/certs/
+          readOnly: true
+        # env:
+        # - name: ELASTIC_HOST
+        #   value: "http://elasticsearch-master.default.svc.cluster.local"
+        # - name: ELASTIC_PORT
+        #   value: "9200"
+      volumes:
+      - name: webhook-tls-certs
+        secret:
+          secretName: jobsync-tls
